@@ -17,8 +17,13 @@ export default function Financial() {
   useEffect(() => { loadTransactions(); }, []);
 
   const loadTransactions = async () => {
-    const data = await financialService.getAll();
-    setTransactions(data);
+    try {
+      const data = await financialService.getAll();
+      setTransactions(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro:', error);
+      setTransactions([]);
+    }
   };
 
   const handleSubmit = async (e) => {

@@ -16,8 +16,13 @@ export default function Products() {
   useEffect(() => { loadProducts(); }, []);
 
   const loadProducts = async () => {
-    const data = await productService.getAll();
-    setProducts(data);
+    try {
+      const data = await productService.getAll();
+      setProducts(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro:', error);
+      setProducts([]);
+    }
   };
 
   const handleSubmit = async (e) => {

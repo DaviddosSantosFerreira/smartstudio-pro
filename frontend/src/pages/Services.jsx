@@ -16,8 +16,13 @@ export default function Services() {
   useEffect(() => { loadServices(); }, []);
 
   const loadServices = async () => {
-    const data = await serviceService.getAll();
-    setServices(data);
+    try {
+      const data = await serviceService.getAll();
+      setServices(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro:', error);
+      setServices([]);
+    }
   };
 
   const handleSubmit = async (e) => {

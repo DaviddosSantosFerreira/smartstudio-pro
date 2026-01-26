@@ -28,23 +28,43 @@ export default function Appointments() {
   }, []);
 
   const loadAppointments = async () => {
-    const data = await appointmentService.getAll();
-    setAppointments(data);
+    try {
+      const data = await appointmentService.getAll();
+      setAppointments(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro:', error);
+      setAppointments([]);
+    }
   };
 
   const loadClients = async () => {
-    const data = await clientService.getAll();
-    setClients(data);
+    try {
+      const data = await clientService.getAll();
+      setClients(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro:', error);
+      setClients([]);
+    }
   };
 
   const loadProfessionals = async () => {
-    const data = await professionalService.getActive();
-    setProfessionals(data);
+    try {
+      const data = await professionalService.getActive();
+      setProfessionals(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro:', error);
+      setProfessionals([]);
+    }
   };
 
   const loadServices = async () => {
-    const data = await serviceService.getActive();
-    setServices(data);
+    try {
+      const data = await serviceService.getActive();
+      setServices(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro:', error);
+      setServices([]);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -109,9 +129,9 @@ export default function Appointments() {
 
       <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); resetForm(); }} title={editing ? 'Editar Agendamento' : 'Novo Agendamento'}>
         <form onSubmit={handleSubmit}>
-          <Select label="Cliente" value={formData.client_id} onChange={(e) => setFormData({ ...formData, client_id: e.target.value })} options={clients.map(c => ({ value: c.id, label: c.name }))} required />
-          <Select label="Profissional" value={formData.professional_id} onChange={(e) => setFormData({ ...formData, professional_id: e.target.value })} options={professionals.map(p => ({ value: p.id, label: p.name }))} required />
-          <Select label="Serviço" value={formData.service_id} onChange={(e) => setFormData({ ...formData, service_id: e.target.value })} options={services.map(s => ({ value: s.id, label: s.name }))} required />
+          <Select label="Cliente" value={formData.client_id} onChange={(e) => setFormData({ ...formData, client_id: e.target.value })} options={(Array.isArray(clients) ? clients : []).map(c => ({ value: c.id, label: c.name }))} required />
+          <Select label="Profissional" value={formData.professional_id} onChange={(e) => setFormData({ ...formData, professional_id: e.target.value })} options={(Array.isArray(professionals) ? professionals : []).map(p => ({ value: p.id, label: p.name }))} required />
+          <Select label="Serviço" value={formData.service_id} onChange={(e) => setFormData({ ...formData, service_id: e.target.value })} options={(Array.isArray(services) ? services : []).map(s => ({ value: s.id, label: s.name }))} required />
           <div className="grid grid-cols-2 gap-4">
             <Input label="Data" type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} required />
             <Input label="Hora" type="time" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} required />

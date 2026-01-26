@@ -23,9 +23,10 @@ export default function Clients() {
   const loadClients = async () => {
     try {
       const data = await clientService.getAll();
-      setClients(data);
+      setClients(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Erro:', error);
+      setClients([]);
     }
   };
 
@@ -61,7 +62,7 @@ export default function Clients() {
     setEditing(null);
   };
 
-  const filteredClients = clients.filter(c =>
+  const filteredClients = (Array.isArray(clients) ? clients : []).filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (c.phone && c.phone.includes(searchTerm)) ||
     (c.email && c.email.toLowerCase().includes(searchTerm.toLowerCase()))

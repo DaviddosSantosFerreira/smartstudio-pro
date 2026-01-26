@@ -15,8 +15,13 @@ export default function Professionals() {
   useEffect(() => { loadProfessionals(); }, []);
 
   const loadProfessionals = async () => {
-    const data = await professionalService.getAll();
-    setProfessionals(data);
+    try {
+      const data = await professionalService.getAll();
+      setProfessionals(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro:', error);
+      setProfessionals([]);
+    }
   };
 
   const handleSubmit = async (e) => {
