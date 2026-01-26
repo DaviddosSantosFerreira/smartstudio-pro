@@ -9,6 +9,7 @@ const financialRoutes = require('./routes/financialRoutes');
 const orientationRoutes = require('./routes/orientationRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/financial', financialRoutes);
 app.use('/api/orientation', orientationRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api', statsRoutes);
 
 app.use(errorHandler);
 
