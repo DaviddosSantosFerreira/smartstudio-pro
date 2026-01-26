@@ -117,10 +117,10 @@ export default function Clients() {
           <h1 className="text-3xl font-bold text-gray-900">Clientes</h1>
           <p className="text-gray-600 mt-1">Gerencie sua base de clientes</p>
         </div>
-        <Button onClick={() => { resetForm(); setIsModalOpen(true); }}>
+        <button type="button" onClick={() => { resetForm(); setIsModalOpen(true); }} className="inline-flex items-center justify-center px-4 py-2.5 bg-primary-600 text-white rounded-lg font-medium transition-all duration-200 hover:bg-primary-700 shadow-sm hover:shadow-md">
           <Plus size={20} className="mr-2" />
           Novo Cliente
-        </Button>
+        </button>
       </div>
 
       <div className="card">
