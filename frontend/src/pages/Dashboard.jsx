@@ -26,7 +26,14 @@ export default function Dashboard() {
     try {
       setLoading(true);
       const response = await api.get('/dashboard/overview');
-      setDashboardData(response.data);
+      setDashboardData({
+        financial: response.data.financial || { income: 0, expense: 0, balance: 0 },
+        stats: response.data.stats || { totalClients: 0, todayAppointments: 0 },
+        upcomingAppointments: response.data.upcomingAppointments || [],
+        topServices: response.data.topServices || [],
+        lowStockProducts: response.data.lowStockProducts || [],
+        monthlyRevenue: response.data.monthlyRevenue || []
+      });
     } catch (error) {
       console.error('Erro ao carregar dashboard:', error);
     } finally {
@@ -54,25 +61,25 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Receita do Mês"
-          value={formatCurrency(dashboardData.financial.income)}
+          value={formatCurrency(dashboardData.financial?.income || 0)}
           icon={DollarSign}
           color="green"
         />
         <StatCard
           title="Despesas do Mês"
-          value={formatCurrency(dashboardData.financial.expense)}
+          value={formatCurrency(dashboardData.financial?.expense || 0)}
           icon={TrendingUp}
           color="red"
         />
         <StatCard
           title="Saldo"
-          value={formatCurrency(dashboardData.financial.balance)}
+          value={formatCurrency(dashboardData.financial?.balance || 0)}
           icon={DollarSign}
           color="blue"
         />
         <StatCard
           title="Total de Clientes"
-          value={dashboardData.stats.totalClients}
+          value={dashboardData.stats?.totalClients || 0}
           icon={Users}
           color="purple"
         />
@@ -86,7 +93,7 @@ export default function Dashboard() {
             <span className="flex items-center space-x-2">
               <Calendar size={20} className="text-primary-600" />
               <span className="text-2xl font-bold text-primary-600">
-                {dashboardData.stats.todayAppointments}
+                {dashboardData.stats?.todayAppointments || 0}
               </span>
               <span className="text-gray-600">agendamentos</span>
             </span>
