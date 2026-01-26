@@ -1,4 +1,4 @@
-const db = require('../config/database');
+const db = require('../config/dbAdapter');
 
 exports.getSettings = async (req, res, next) => {
   try {

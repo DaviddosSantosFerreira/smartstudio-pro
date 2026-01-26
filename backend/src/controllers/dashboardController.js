@@ -1,4 +1,4 @@
-const db = require('../config/database');
+const db = require('../config/dbAdapter');
 const { startOfMonth, endOfMonth, subMonths, format } = require('date-fns');
 
 exports.getOverview = async (req, res, next) => {
