@@ -17,6 +17,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Middleware de logging para todas as requisições (DEPOIS do express.json para capturar body)
+app.use((req, res, next) => {
+  console.log(`\n${'='.repeat(60)}`);
+  console.log(`📥 ${new Date().toISOString()} - ${req.method} ${req.path}`);
+  if (Object.keys(req.body).length > 0) {
+    console.log(`📥 Body:`, JSON.stringify(req.body, null, 2));
+  }
+  if (Object.keys(req.query).length > 0) {
+    console.log(`📥 Query:`, JSON.stringify(req.query, null, 2));
+  }
+  console.log(`${'='.repeat(60)}\n`);
+  next();
+});
+
 // Rotas
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/clients', clientRoutes);

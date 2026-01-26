@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 export default function Input({ 
   label, 
@@ -11,10 +11,12 @@ export default function Input({
   error = '',
   icon: Icon
 }) {
+  const id = useId();
+  
   return (
     <div className="mb-4">
       {label && (
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <label htmlFor={id} className="block text-sm font-semibold text-gray-700 mb-2">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -25,6 +27,7 @@ export default function Input({
           </div>
         )}
         <input
+          id={id}
           type={type}
           value={value}
           onChange={onChange}

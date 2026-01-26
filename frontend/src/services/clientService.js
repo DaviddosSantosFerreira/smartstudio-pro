@@ -12,8 +12,17 @@ export const clientService = {
   },
 
   create: async (data) => {
-    const response = await api.post('/clients', data);
-    return response.data;
+    try {
+      console.log('📤 clientService.create - Enviando dados:', data);
+      const response = await api.post('/clients', data);
+      console.log('✅ clientService.create - Resposta recebida:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ clientService.create - Erro:', error);
+      console.error('❌ clientService.create - Response:', error.response);
+      console.error('❌ clientService.create - Data:', error.response?.data);
+      throw error;
+    }
   },
 
   update: async (id, data) => {

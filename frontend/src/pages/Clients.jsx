@@ -33,16 +33,38 @@ export default function Clients() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('📝 handleSubmit - Iniciando envio do formulário');
+      console.log('📝 handleSubmit - formData:', formData);
+      console.log('📝 handleSubmit - editing:', editing);
+      
       if (editing) {
+        console.log('📝 handleSubmit - Modo: EDITAR');
         await clientService.update(editing.id, formData);
+        console.log('✅ handleSubmit - Cliente atualizado');
       } else {
-        await clientService.create(formData);
+        console.log('📝 handleSubmit - Modo: CRIAR');
+        const result = await clientService.create(formData);
+        console.log('✅ handleSubmit - Cliente criado:', result);
       }
+      
       setIsModalOpen(false);
       resetForm();
-      loadClients();
+      
+      console.log('📝 handleSubmit - Recarregando lista de clientes...');
+      await loadClients();
+      console.log('✅ handleSubmit - Lista de clientes recarregada');
     } catch (error) {
-      console.error('Erro:', error);
+      console.error('❌ handleSubmit - Erro completo:', error);
+      console.error('❌ handleSubmit - Response:', error.response);
+      console.error('❌ handleSubmit - Data:', error.response?.data);
+      console.error('❌ handleSubmit - Message:', error.message);
+      
+      const errorMessage = error.response?.data?.error?.message 
+        || error.response?.data?.message 
+        || error.message 
+        || 'Erro desconhecido ao salvar cliente';
+      
+      alert('Erro ao salvar cliente:\n\n' + errorMessage);
     }
   };
 
