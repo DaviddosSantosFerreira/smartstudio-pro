@@ -100,7 +100,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {dashboardData.lowStockProducts.length > 0 && (
+        {Array.isArray(dashboardData.lowStockProducts) && dashboardData.lowStockProducts.length > 0 && (
           <div className="card bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
             <div className="flex items-center space-x-3 mb-4">
               <AlertTriangle className="text-yellow-600" size={24} />

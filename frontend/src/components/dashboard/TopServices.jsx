@@ -3,11 +3,13 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { formatCurrency } from '../../utils/formatters';
 
 export default function TopServices({ services }) {
+  const servicesList = Array.isArray(services) ? services : [];
+  
   return (
     <div className="card">
       <h3 className="text-xl font-bold text-gray-900 mb-6">Serviços Mais Vendidos</h3>
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={services}>
+        <BarChart data={servicesList}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis dataKey="name" stroke="#6b7280" />
           <YAxis stroke="#6b7280" />

@@ -3,11 +3,13 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { formatCurrency } from '../../utils/formatters';
 
 export default function RevenueChart({ data }) {
+  const chartData = Array.isArray(data) ? data : [];
+  
   return (
     <div className="card">
       <h3 className="text-xl font-bold text-gray-900 mb-6">Evolução Financeira</h3>
       <ResponsiveContainer width="100%" height={350}>
-        <LineChart data={data}>
+        <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis dataKey="month" stroke="#6b7280" />
           <YAxis tickFormatter={(value) => formatCurrency(value)} stroke="#6b7280" />

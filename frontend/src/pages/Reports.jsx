@@ -25,11 +25,14 @@ export default function Reports() {
         api.get('/reports/professionals', { params: { startDate, endDate } }),
         api.get('/reports/financial', { params: { startDate, endDate } })
       ]);
-      setServiceReport(services.data);
-      setProfessionalReport(professionals.data);
-      setFinancialReport(financial.data);
+      setServiceReport(Array.isArray(services.data) ? services.data : []);
+      setProfessionalReport(Array.isArray(professionals.data) ? professionals.data : []);
+      setFinancialReport(financial.data || null);
     } catch (error) {
       console.error('Erro:', error);
+      setServiceReport([]);
+      setProfessionalReport([]);
+      setFinancialReport(null);
     }
   };
 
@@ -46,20 +49,20 @@ export default function Reports() {
         </div>
       </div>
 
-      {financialReport && (
+      {financialReport && financialReport.summary && (
         <Card title="Resumo Financeiro">
           <div className="grid grid-cols-3 gap-6 mb-6">
             <div>
               <p className="text-gray-600 text-sm">Total de Receitas</p>
-              <p className="text-2xl font-bold text-green-600">{formatCurrency(financialReport.summary.total_income)}</p>
+              <p className="text-2xl font-bold text-green-600">{formatCurrency(financialReport.summary.total_income || 0)}</p>
             </div>
             <div>
               <p className="text-gray-600 text-sm">Total de Despesas</p>
-              <p className="text-2xl font-bold text-red-600">{formatCurrency(financialReport.summary.total_expense)}</p>
+              <p className="text-2xl font-bold text-red-600">{formatCurrency(financialReport.summary.total_expense || 0)}</p>
             </div>
             <div>
               <p className="text-gray-600 text-sm">Saldo</p>
-              <p className="text-2xl font-bold text-primary-600">{formatCurrency(financialReport.summary.balance)}</p>
+              <p className="text-2xl font-bold text-primary-600">{formatCurrency(financialReport.summary.balance || 0)}</p>
             </div>
           </div>
         </Card>
@@ -68,7 +71,7 @@ export default function Reports() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="Relatório de Serviços">
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={serviceReport}>
+            <BarChart data={Array.isArray(serviceReport) ? serviceReport : []}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
@@ -81,7 +84,7 @@ export default function Reports() {
 
         <Card title="Relatório de Profissionais">
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={professionalReport}>
+            <BarChart data={Array.isArray(professionalReport) ? professionalReport : []}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />

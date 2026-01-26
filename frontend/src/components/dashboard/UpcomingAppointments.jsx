@@ -3,11 +3,13 @@ import { Calendar, Clock, User } from 'lucide-react';
 import { formatDate, formatTime } from '../../utils/formatters';
 
 export default function UpcomingAppointments({ appointments }) {
+  const appointmentsList = Array.isArray(appointments) ? appointments : [];
+  
   return (
     <div className="card">
       <h3 className="text-xl font-bold text-gray-900 mb-6">Próximos Agendamentos</h3>
       <div className="space-y-3">
-        {appointments.map((appointment) => (
+        {appointmentsList.map((appointment) => (
           <div
             key={appointment.id}
             className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -41,7 +43,7 @@ export default function UpcomingAppointments({ appointments }) {
             </span>
           </div>
         ))}
-        {appointments.length === 0 && (
+        {appointmentsList.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <Calendar size={48} className="mx-auto mb-2 opacity-50" />
             <p>Nenhum agendamento próximo</p>
