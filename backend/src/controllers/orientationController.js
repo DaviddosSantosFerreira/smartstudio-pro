@@ -3,6 +3,15 @@ const db = require('../config/dbAdapter');
 exports.getSettings = async (req, res, next) => {
   try {
     const settings = await db.get('SELECT * FROM orientation_settings WHERE id = 1');
+    
+    // Converter strings para números (PostgreSQL retorna DECIMAL como string)
+    if (settings) {
+      settings.prolabore_percentage = parseFloat(settings.prolabore_percentage) || 0;
+      settings.reinvestment_percentage = parseFloat(settings.reinvestment_percentage) || 0;
+      settings.reserve_percentage = parseFloat(settings.reserve_percentage) || 0;
+      settings.tax_percentage = parseFloat(settings.tax_percentage) || 0;
+    }
+    
     res.json(settings || {});
   } catch (error) {
     next(error);
@@ -36,12 +45,18 @@ exports.calculateDistribution = async (req, res, next) => {
       return res.status(404).json({ error: 'Configurações não encontradas' });
     }
 
+    // Converter strings para números
+    const prolabore = parseFloat(settings.prolabore_percentage) || 0;
+    const reinvestment = parseFloat(settings.reinvestment_percentage) || 0;
+    const reserve = parseFloat(settings.reserve_percentage) || 0;
+    const taxes = parseFloat(settings.tax_percentage) || 0;
+
     const distribution = {
       revenue: monthlyRevenue,
-      prolabore: (monthlyRevenue * settings.prolabore_percentage) / 100,
-      reinvestment: (monthlyRevenue * settings.reinvestment_percentage) / 100,
-      reserve: (monthlyRevenue * settings.reserve_percentage) / 100,
-      taxes: (monthlyRevenue * settings.tax_percentage) / 100
+      prolabore: (monthlyRevenue * prolabore) / 100,
+      reinvestment: (monthlyRevenue * reinvestment) / 100,
+      reserve: (monthlyRevenue * reserve) / 100,
+      taxes: (monthlyRevenue * taxes) / 100
     };
 
     distribution.operational = monthlyRevenue - 
