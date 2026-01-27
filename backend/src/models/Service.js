@@ -2,71 +2,36 @@ const db = require('../config/dbAdapter');
 
 class Service {
   static getAll() {
-    return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM services ORDER BY name', (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    return db.all('SELECT * FROM services ORDER BY name');
   }
 
   static getActive() {
-    return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM services WHERE active = 1 ORDER BY name', (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    return db.all('SELECT * FROM services WHERE active = true ORDER BY name');
   }
 
   static getById(id) {
-    return new Promise((resolve, reject) => {
-      db.get('SELECT * FROM services WHERE id = ?', [id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    return db.get('SELECT * FROM services WHERE id = $1', [id]);
   }
 
   static create(data) {
-    return new Promise((resolve, reject) => {
-      const { name, description, duration, price } = data;
-      
-      db.run(
-        'INSERT INTO services (name, description, duration, price) VALUES (?, ?, ?, ?)',
-        [name, description, duration, price],
-        function(err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID, ...data });
-        }
-      );
-    });
+    const { name, description, duration, price, active = true } = data;
+    return db.run(
+      'INSERT INTO services (name, description, duration, price, active) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [name, description, duration, price, active]
+    );
   }
 
   static update(id, data) {
-    return new Promise((resolve, reject) => {
-      const { name, description, duration, price, active } = data;
-      
-      db.run(
-        'UPDATE services SET name = ?, description = ?, duration = ?, price = ?, active = ? WHERE id = ?',
-        [name, description, duration, price, active, id],
-        (err) => {
-          if (err) reject(err);
-          else resolve({ id, ...data });
-        }
-      );
-    });
+    const { name, description, duration, price, active } = data;
+    return db.run(
+      'UPDATE services SET name = $1, description = $2, duration = $3, price = $4, active = $5 WHERE id = $6',
+      [name, description, duration, price, active, id]
+    );
   }
 
   static delete(id) {
-    return new Promise((resolve, reject) => {
-      db.run('DELETE FROM services WHERE id = ?', [id], (err) => {
-        if (err) reject(err);
-        else resolve({ message: 'Serviço deletado com sucesso' });
-      });
-    });
+    return db.run('DELETE FROM services WHERE id = $1', [id]);
   }
 }
 
 module.exports = Service;
-

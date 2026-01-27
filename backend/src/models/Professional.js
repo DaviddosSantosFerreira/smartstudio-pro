@@ -2,71 +2,36 @@ const db = require('../config/dbAdapter');
 
 class Professional {
   static getAll() {
-    return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM professionals ORDER BY name', (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    return db.all('SELECT * FROM professionals ORDER BY name');
   }
 
   static getActive() {
-    return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM professionals WHERE active = 1 ORDER BY name', (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    return db.all('SELECT * FROM professionals WHERE active = true ORDER BY name');
   }
 
   static getById(id) {
-    return new Promise((resolve, reject) => {
-      db.get('SELECT * FROM professionals WHERE id = ?', [id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    return db.get('SELECT * FROM professionals WHERE id = $1', [id]);
   }
 
   static create(data) {
-    return new Promise((resolve, reject) => {
-      const { name, specialty, phone, email, commission_percentage, color } = data;
-      
-      db.run(
-        'INSERT INTO professionals (name, specialty, phone, email, commission_percentage, color) VALUES (?, ?, ?, ?, ?, ?)',
-        [name, specialty, phone, email, commission_percentage || 0, color || '#3b82f6'],
-        function(err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID, ...data });
-        }
-      );
-    });
+    const { name, specialty, phone, email, commission_percentage, color, active = true } = data;
+    return db.run(
+      'INSERT INTO professionals (name, specialty, phone, email, commission_percentage, color, active) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      [name, specialty, phone, email, commission_percentage, color, active]
+    );
   }
 
   static update(id, data) {
-    return new Promise((resolve, reject) => {
-      const { name, specialty, phone, email, commission_percentage, active, color } = data;
-      
-      db.run(
-        'UPDATE professionals SET name = ?, specialty = ?, phone = ?, email = ?, commission_percentage = ?, active = ?, color = ? WHERE id = ?',
-        [name, specialty, phone, email, commission_percentage, active, color, id],
-        (err) => {
-          if (err) reject(err);
-          else resolve({ id, ...data });
-        }
-      );
-    });
+    const { name, specialty, phone, email, commission_percentage, color, active } = data;
+    return db.run(
+      'UPDATE professionals SET name = $1, specialty = $2, phone = $3, email = $4, commission_percentage = $5, color = $6, active = $7 WHERE id = $8',
+      [name, specialty, phone, email, commission_percentage, color, active, id]
+    );
   }
 
   static delete(id) {
-    return new Promise((resolve, reject) => {
-      db.run('DELETE FROM professionals WHERE id = ?', [id], (err) => {
-        if (err) reject(err);
-        else resolve({ message: 'Profissional deletado com sucesso' });
-      });
-    });
+    return db.run('DELETE FROM professionals WHERE id = $1', [id]);
   }
 }
 
 module.exports = Professional;
-

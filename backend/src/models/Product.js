@@ -2,84 +2,43 @@ const db = require('../config/dbAdapter');
 
 class Product {
   static getAll() {
-    return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM products ORDER BY name', (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
-  }
-
-  static getLowStock() {
-    return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM products WHERE stock <= min_stock AND active = 1', (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    return db.all('SELECT * FROM products ORDER BY name');
   }
 
   static getById(id) {
-    return new Promise((resolve, reject) => {
-      db.get('SELECT * FROM products WHERE id = ?', [id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    return db.get('SELECT * FROM products WHERE id = $1', [id]);
+  }
+
+  static getLowStock() {
+    return db.all('SELECT * FROM products WHERE stock <= min_stock ORDER BY name');
   }
 
   static create(data) {
-    return new Promise((resolve, reject) => {
-      const { name, description, price, stock, min_stock } = data;
-      
-      db.run(
-        'INSERT INTO products (name, description, price, stock, min_stock) VALUES (?, ?, ?, ?, ?)',
-        [name, description, price, stock || 0, min_stock || 0],
-        function(err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID, ...data });
-        }
-      );
-    });
+    const { name, description, price, stock, min_stock } = data;
+    return db.run(
+      'INSERT INTO products (name, description, price, stock, min_stock) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [name, description, price, stock, min_stock]
+    );
   }
 
   static update(id, data) {
-    return new Promise((resolve, reject) => {
-      const { name, description, price, stock, min_stock, active } = data;
-      
-      db.run(
-        'UPDATE products SET name = ?, description = ?, price = ?, stock = ?, min_stock = ?, active = ? WHERE id = ?',
-        [name, description, price, stock, min_stock, active, id],
-        (err) => {
-          if (err) reject(err);
-          else resolve({ id, ...data });
-        }
-      );
-    });
+    const { name, description, price, stock, min_stock } = data;
+    return db.run(
+      'UPDATE products SET name = $1, description = $2, price = $3, stock = $4, min_stock = $5 WHERE id = $6',
+      [name, description, price, stock, min_stock, id]
+    );
   }
 
   static updateStock(id, quantity) {
-    return new Promise((resolve, reject) => {
-      db.run(
-        'UPDATE products SET stock = stock + ? WHERE id = ?',
-        [quantity, id],
-        (err) => {
-          if (err) reject(err);
-          else resolve({ message: 'Estoque atualizado' });
-        }
-      );
-    });
+    return db.run(
+      'UPDATE products SET stock = stock + $1 WHERE id = $2',
+      [quantity, id]
+    );
   }
 
   static delete(id) {
-    return new Promise((resolve, reject) => {
-      db.run('DELETE FROM products WHERE id = ?', [id], (err) => {
-        if (err) reject(err);
-        else resolve({ message: 'Produto deletado com sucesso' });
-      });
-    });
+    return db.run('DELETE FROM products WHERE id = $1', [id]);
   }
 }
 
 module.exports = Product;
-

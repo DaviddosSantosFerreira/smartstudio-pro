@@ -40,11 +40,7 @@ class Client {
     };
     
     // Para PostgreSQL, precisamos usar RETURNING para obter o ID
-    let sql = 'INSERT INTO clients (name, phone, email, cpf, birth_date, address, notes) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const isProduction = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
-    if (isProduction) {
-      sql += ' RETURNING id';
-    }
+    const sql = 'INSERT INTO clients (name, phone, email, cpf, birth_date, address, notes) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id';
     
     const params = [
       cleanData.name, 
