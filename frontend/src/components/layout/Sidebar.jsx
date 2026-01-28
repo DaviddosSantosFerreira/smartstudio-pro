@@ -10,7 +10,8 @@ import {
   DollarSign, 
   Calculator, 
   FileText,
-  Settings
+  Settings,
+  Globe
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen }) {
@@ -24,7 +25,8 @@ export default function Sidebar({ isOpen }) {
     { path: '/financial', icon: DollarSign, label: 'Financeiro' },
     { path: '/orientation', icon: Calculator, label: 'Orientação Financeira' },
     { path: '/reports', icon: FileText, label: 'Relatórios' },
-    { path: '/settings', icon: Settings, label: 'Configurações' }
+    { path: '/settings', icon: Settings, label: 'Configurações' },
+    { path: '/studio-settings', icon: Globe, label: 'Minha Página' }
   ];
 
   return (
