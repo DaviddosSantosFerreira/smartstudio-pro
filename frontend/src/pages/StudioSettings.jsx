@@ -26,7 +26,7 @@ export default function StudioSettings() {
 
   const loadSettings = async () => {
     try {
-      const response = await api.get('/api/studio/settings');
+      const response = await api.get('/studio/settings');
       if (response.data && Object.keys(response.data).length > 0) {
         setSettings(response.data);
         setPreviewLogo(response.data.logo_url);
@@ -62,7 +62,7 @@ export default function StudioSettings() {
     formData.append('logo', file);
 
     try {
-      const response = await api.post('/api/studio/upload-logo', formData, {
+      const response = await api.post('/studio/upload-logo', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setSettings(prev => ({ ...prev, logo_url: response.data.url }));
@@ -80,7 +80,7 @@ export default function StudioSettings() {
     setMessage('');
 
     try {
-      await api.put('/api/studio/settings', settings);
+      await api.put('/studio/settings', settings);
       setMessage('Configurações salvas com sucesso!');
     } catch (error) {
       console.error('Erro ao salvar:', error);

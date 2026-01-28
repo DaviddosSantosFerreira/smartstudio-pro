@@ -30,9 +30,9 @@ export default function PublicBooking() {
   const loadData = async () => {
     try {
       const [studioRes, servicesRes, professionalsRes] = await Promise.all([
-        api.get(`/api/studio/public/${slug}`),
-        api.get('/api/services/active'),
-        api.get('/api/professionals/active')
+        api.get(`/studio/public/${slug}`),
+        api.get('/services/active'),
+        api.get('/professionals/active')
       ]);
       
       setStudio(studioRes.data);
@@ -84,7 +84,7 @@ export default function PublicBooking() {
     e.preventDefault();
     
     try {
-      await api.post('/api/appointments', {
+      await api.post('/appointments', {
         client_name: formData.clientName,
         client_phone: formData.clientPhone,
         service_id: formData.serviceId,
