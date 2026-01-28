@@ -10,12 +10,15 @@ const orientationRoutes = require('./routes/orientationRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const statsRoutes = require('./routes/statsRoutes');
+const studioRoutes = require('./routes/studioRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Middleware de logging para todas as requisições (DEPOIS do express.json para capturar body)
 app.use((req, res, next) => {
@@ -42,6 +45,7 @@ app.use('/api/orientation', orientationRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api', statsRoutes);
+app.use('/api/studio', studioRoutes);
 
 app.use(errorHandler);
 

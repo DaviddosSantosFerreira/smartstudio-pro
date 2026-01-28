@@ -157,6 +157,39 @@ async function initDatabase() {
       `);
     }
 
+    // Tabela de Configurações do Estúdio
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS studio_settings (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) UNIQUE,
+        logo_url TEXT,
+        phone VARCHAR(20),
+        whatsapp VARCHAR(20),
+        instagram VARCHAR(255),
+        address TEXT,
+        description TEXT,
+        primary_color VARCHAR(20) DEFAULT '#ec4899',
+        secondary_color VARCHAR(20) DEFAULT '#f9a8d4',
+        monday_open VARCHAR(10) DEFAULT '09:00',
+        monday_close VARCHAR(10) DEFAULT '18:00',
+        tuesday_open VARCHAR(10) DEFAULT '09:00',
+        tuesday_close VARCHAR(10) DEFAULT '18:00',
+        wednesday_open VARCHAR(10) DEFAULT '09:00',
+        wednesday_close VARCHAR(10) DEFAULT '18:00',
+        thursday_open VARCHAR(10) DEFAULT '09:00',
+        thursday_close VARCHAR(10) DEFAULT '18:00',
+        friday_open VARCHAR(10) DEFAULT '09:00',
+        friday_close VARCHAR(10) DEFAULT '18:00',
+        saturday_open VARCHAR(10) DEFAULT '09:00',
+        saturday_close VARCHAR(10) DEFAULT '15:00',
+        sunday_open VARCHAR(10),
+        sunday_close VARCHAR(10),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Inserir dados de exemplo
     await insertSampleData(client);
 
