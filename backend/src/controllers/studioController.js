@@ -1,6 +1,8 @@
 const StudioSettings = require('../models/StudioSettings');
 const path = require('path');
 const fs = require('fs');
+const cloudinary = require('../config/cloudinary');
+const db = require('../config/dbAdapter');
 
 exports.getSettings = async (req, res, next) => {
   try {
@@ -35,16 +37,48 @@ exports.getPublicSettings = async (req, res, next) => {
   }
 };
 
-exports.uploadLogo = async (req, res, next) => {
+const uploadLogo = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Nenhum arquivo enviado' });
     }
-    
-    const logoUrl = `/uploads/${req.file.filename}`;
-    res.json({ url: logoUrl });
+
+    // Fazer upload para o Cloudinary usando buffer
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'smartstudio/logos',
+          public_id: `logo_${Date.now()}`,
+          overwrite: true,
+          resource_type: 'image'
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(req.file.buffer);
+    });
+
+    // Atualizar o logo_url no banco de dados
+    const updateQuery = `
+      UPDATE studio_settings 
+      SET logo_url = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = 1
+      RETURNING *
+    `;
+    const dbResult = await db.query(updateQuery, [result.secure_url]);
+
+    res.json({ 
+      message: 'Logo enviado com sucesso',
+      logo_url: result.secure_url,
+      settings: dbResult.rows[0]
+    });
   } catch (error) {
-    next(error);
+    console.error('Erro ao fazer upload do logo:', error);
+    res.status(500).json({ error: 'Erro ao fazer upload do logo' });
   }
 };
+
+exports.uploadLogo = uploadLogo;
 
