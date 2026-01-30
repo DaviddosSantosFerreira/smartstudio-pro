@@ -2,7 +2,7 @@ const StudioSettings = require('../models/StudioSettings');
 const path = require('path');
 const fs = require('fs');
 const cloudinary = require('../config/cloudinary');
-const db = require('../config/dbAdapter');
+const db = require('../config/database');
 
 exports.getSettings = async (req, res, next) => {
   try {
