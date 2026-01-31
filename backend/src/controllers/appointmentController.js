@@ -41,7 +41,44 @@ exports.getById = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const appointment = await Appointment.create(req.body);
+    const { client_id, client_name, client_phone, professional_id, service_id, date, time, notes } = req.body;
+    
+    let finalClientId = client_id;
+    
+    // Se não tem client_id mas tem client_name e client_phone (booking público)
+    if (!finalClientId && client_name && client_phone) {
+      // Buscar cliente existente pelo telefone
+      const existingClient = await pool.query(
+        'SELECT id FROM clients WHERE phone = $1',
+        [client_phone]
+      );
+      
+      if (existingClient.rows.length > 0) {
+        // Cliente já existe, usar o ID dele
+        finalClientId = existingClient.rows[0].id;
+      } else {
+        // Criar novo cliente
+        const newClient = await pool.query(
+          'INSERT INTO clients (name, phone) VALUES ($1, $2) RETURNING id',
+          [client_name, client_phone]
+        );
+        finalClientId = newClient.rows[0].id;
+      }
+    }
+    
+    if (!finalClientId) {
+      return res.status(400).json({ error: 'Cliente é obrigatório' });
+    }
+
+    const appointment = await Appointment.create({
+      client_id: finalClientId,
+      professional_id,
+      service_id,
+      date,
+      time,
+      notes
+    });
+    
     res.status(201).json(appointment);
   } catch (error) {
     next(error);
