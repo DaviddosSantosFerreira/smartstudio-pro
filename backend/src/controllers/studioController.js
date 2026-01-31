@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const cloudinary = require('../config/cloudinary');
 const db = require('../config/database');
+const pool = require('../config/database');
 
 exports.getSettings = async (req, res, next) => {
   try {
@@ -67,7 +68,7 @@ const uploadLogo = async (req, res) => {
       WHERE id = 1
       RETURNING *
     `;
-    const dbResult = await db.query(updateQuery, [result.secure_url]);
+    const dbResult = await pool.query(updateQuery, [result.secure_url]);
 
     res.json({ 
       message: 'Logo enviado com sucesso',
