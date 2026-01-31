@@ -65,7 +65,7 @@ export default function StudioSettings() {
       const response = await api.post('/studio/upload-logo', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setSettings(prev => ({ ...prev, logo_url: response.data.url }));
+      setSettings(prev => ({ ...prev, logo_url: response.data.logo_url }));
       setPreviewLogo(URL.createObjectURL(file));
       setMessage('Logo enviado com sucesso!');
     } catch (error) {
