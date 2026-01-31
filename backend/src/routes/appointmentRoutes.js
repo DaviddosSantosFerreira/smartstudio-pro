@@ -5,6 +5,8 @@ const appointmentController = require('../controllers/appointmentController');
 router.get('/', appointmentController.getAll);
 router.get('/upcoming', appointmentController.getUpcoming);
 router.get('/date/:date', appointmentController.getByDate);
+// Rota para buscar horários disponíveis (deve vir antes das rotas com :id)
+router.get('/available-times', appointmentController.getAvailableTimes);
 router.get('/:id', appointmentController.getById);
 router.post('/', appointmentController.create);
 router.put('/:id', appointmentController.update);

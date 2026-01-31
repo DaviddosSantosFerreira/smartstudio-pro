@@ -21,6 +21,7 @@ export default function PublicBooking() {
     time: ''
   });
   const [availableTimes, setAvailableTimes] = useState([]);
+  const [loadingTimes, setLoadingTimes] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
 
   useEffect(() => {
@@ -46,20 +47,37 @@ export default function PublicBooking() {
     }
   };
 
-  const generateTimeSlots = () => {
-    const slots = [];
-    for (let hour = 9; hour < 20; hour++) {
-      slots.push(`${hour.toString().padStart(2, '0')}:00`);
-      slots.push(`${hour.toString().padStart(2, '0')}:30`);
+  // Buscar horários disponíveis do backend
+  const fetchAvailableTimes = async () => {
+    if (!formData.date || !formData.serviceId) {
+      setAvailableTimes([]);
+      return;
     }
-    return slots;
+
+    setLoadingTimes(true);
+    try {
+      const params = new URLSearchParams({
+        date: formData.date,
+        service_id: formData.serviceId
+      });
+      
+      if (formData.professionalId) {
+        params.append('professional_id', formData.professionalId);
+      }
+
+      const response = await api.get(`/appointments/available-times?${params}`);
+      setAvailableTimes(response.data.availableTimes || []);
+    } catch (error) {
+      console.error('Erro ao buscar horários disponíveis:', error);
+      setAvailableTimes([]);
+    } finally {
+      setLoadingTimes(false);
+    }
   };
 
   useEffect(() => {
-    if (formData.date) {
-      setAvailableTimes(generateTimeSlots());
-    }
-  }, [formData.date]);
+    fetchAvailableTimes();
+  }, [formData.date, formData.serviceId, formData.professionalId]);
 
   const handleServiceSelect = (serviceId) => {
     setFormData(prev => ({ ...prev, serviceId }));
@@ -322,24 +340,34 @@ export default function PublicBooking() {
               {formData.date && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Horário</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {availableTimes.map(time => (
-                      <button
-                        key={time}
-                        onClick={() => handleTimeSelect(time)}
-                        className={`p-2 rounded-lg border text-sm font-medium transition-all ${
-                          formData.time === time 
-                            ? 'text-white border-transparent' 
-                            : 'bg-white text-gray-700 hover:border-pink-300'
-                        }`}
-                        style={{ 
-                          backgroundColor: formData.time === time ? (studio?.primary_color || '#ec4899') : undefined 
-                        }}
-                      >
-                        {time}
-                      </button>
-                    ))}
-                  </div>
+                  {loadingTimes ? (
+                    <div className="text-center py-4 text-gray-500">
+                      Carregando horários...
+                    </div>
+                  ) : availableTimes.length === 0 ? (
+                    <div className="text-center py-4 text-gray-500">
+                      Nenhum horário disponível para esta data
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-2">
+                      {availableTimes.map(time => (
+                        <button
+                          key={time}
+                          onClick={() => handleTimeSelect(time)}
+                          className={`p-2 rounded-lg border text-sm font-medium transition-all ${
+                            formData.time === time 
+                              ? 'text-white border-transparent' 
+                              : 'bg-white text-gray-700 hover:border-pink-300'
+                          }`}
+                          style={{ 
+                            backgroundColor: formData.time === time ? (studio?.primary_color || '#ec4899') : undefined 
+                          }}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
