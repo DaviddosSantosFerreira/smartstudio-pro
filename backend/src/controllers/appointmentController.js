@@ -43,33 +43,48 @@ exports.create = async (req, res, next) => {
   try {
     const { client_id, client_name, client_phone, professional_id, service_id, date, time, notes } = req.body;
     
+    console.log('=== DEBUG CREATE APPOINTMENT ===');
+    console.log('Dados recebidos:', { client_id, client_name, client_phone, professional_id, service_id, date, time });
+    
     let finalClientId = client_id;
     
     // Se não tem client_id mas tem client_name e client_phone (booking público)
     if (!finalClientId && client_name && client_phone) {
+      console.log('Modo booking público - buscando/criando cliente...');
+      
       // Buscar cliente existente pelo telefone
       const existingClient = await pool.query(
         'SELECT id FROM clients WHERE phone = $1',
         [client_phone]
       );
       
+      console.log('Resultado busca cliente:', existingClient.rows);
+      
       if (existingClient.rows.length > 0) {
         // Cliente já existe, usar o ID dele
         finalClientId = existingClient.rows[0].id;
+        console.log('Cliente existente encontrado, ID:', finalClientId);
       } else {
         // Criar novo cliente
+        console.log('Cliente não encontrado, criando novo...');
         const newClient = await pool.query(
           'INSERT INTO clients (name, phone) VALUES ($1, $2) RETURNING id',
           [client_name, client_phone]
         );
         finalClientId = newClient.rows[0].id;
+        console.log('Novo cliente criado, ID:', finalClientId);
       }
     }
     
+    console.log('finalClientId antes de criar appointment:', finalClientId);
+    
     if (!finalClientId) {
+      console.log('ERRO: finalClientId é undefined ou null');
       return res.status(400).json({ error: 'Cliente é obrigatório' });
     }
 
+    console.log('Criando appointment com client_id:', finalClientId);
+    
     const appointment = await Appointment.create({
       client_id: finalClientId,
       professional_id,
@@ -79,8 +94,10 @@ exports.create = async (req, res, next) => {
       notes
     });
     
+    console.log('Appointment criado:', appointment);
     res.status(201).json(appointment);
   } catch (error) {
+    console.log('ERRO na função create:', error.message);
     next(error);
   }
 };
