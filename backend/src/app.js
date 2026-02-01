@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { authMiddleware } = require('./middlewares/auth');
 const authRoutes = require('./routes/authRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const clientRoutes = require('./routes/clientRoutes');
@@ -36,21 +37,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rotas de autenticação
+// Rotas de autenticação (públicas)
 app.use('/api/auth', authRoutes);
 
-// Rotas
+// Rotas públicas (sem autenticação)
 app.use('/api/appointments', appointmentRoutes);
-app.use('/api/clients', clientRoutes);
 app.use('/api/services', serviceRoutes);
-app.use('/api/products', productRoutes);
 app.use('/api/professionals', professionalRoutes);
-app.use('/api/financial', financialRoutes);
-app.use('/api/orientation', orientationRoutes);
-app.use('/api/reports', reportRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api', statsRoutes);
 app.use('/api/studio', studioRoutes);
+
+// Rotas protegidas (com autenticação)
+app.use('/api/clients', authMiddleware, clientRoutes);
+app.use('/api/products', authMiddleware, productRoutes);
+app.use('/api/financial', authMiddleware, financialRoutes);
+app.use('/api/dashboard', authMiddleware, dashboardRoutes);
+app.use('/api/reports', authMiddleware, reportRoutes);
+app.use('/api/orientation', authMiddleware, orientationRoutes);
+app.use('/api/stats', authMiddleware, statsRoutes);
 
 app.use(errorHandler);
 

@@ -1,17 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const appointmentController = require('../controllers/appointmentController');
+const { authMiddleware } = require('../middlewares/auth');
 
-router.get('/', appointmentController.getAll);
-router.get('/upcoming', appointmentController.getUpcoming);
-router.get('/date/:date', appointmentController.getByDate);
-// Rota para buscar horários disponíveis (deve vir antes das rotas com :id)
+// Rotas PÚBLICAS (booking)
 router.get('/available-times', appointmentController.getAvailableTimes);
-router.get('/:id', appointmentController.getById);
 router.post('/', appointmentController.create);
-router.put('/:id', appointmentController.update);
-router.patch('/:id/status', appointmentController.updateStatus);
-router.delete('/:id', appointmentController.delete);
+
+// Rotas PROTEGIDAS (painel admin)
+router.get('/', authMiddleware, appointmentController.getAll);
+router.get('/:id', authMiddleware, appointmentController.getById);
+router.put('/:id', authMiddleware, appointmentController.update);
+router.patch('/:id/status', authMiddleware, appointmentController.updateStatus);
+router.delete('/:id', authMiddleware, appointmentController.delete);
 
 module.exports = router;
 

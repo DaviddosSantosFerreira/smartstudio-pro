@@ -1,13 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const professionalController = require('../controllers/professionalController');
+const { authMiddleware } = require('../middlewares/auth');
 
-router.get('/', professionalController.getAll);
+// Rotas PÚBLICAS (booking)
 router.get('/active', professionalController.getActive);
-router.get('/:id', professionalController.getById);
-router.post('/', professionalController.create);
-router.put('/:id', professionalController.update);
-router.delete('/:id', professionalController.delete);
+
+// Rotas PROTEGIDAS (painel admin)
+router.get('/', authMiddleware, professionalController.getAll);
+router.get('/:id', authMiddleware, professionalController.getById);
+router.post('/', authMiddleware, professionalController.create);
+router.put('/:id', authMiddleware, professionalController.update);
+router.delete('/:id', authMiddleware, professionalController.delete);
 
 module.exports = router;
 
