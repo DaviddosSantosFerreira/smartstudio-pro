@@ -1,9 +1,18 @@
 import React from 'react';
-import { Menu, Bell, Settings as SettingsIcon, User } from 'lucide-react';
+import { Menu, Bell, Settings as SettingsIcon, User, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Header({ onMenuClick }) {
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
+  // Pegar nome do usuário logado
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   return (
     <header className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 shadow-sm">
@@ -31,12 +40,18 @@ export default function Header({ onMenuClick }) {
           >
             <SettingsIcon size={20} className="text-gray-600" />
           </button>
-          <button className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-              <User size={18} className="text-white" />
-            </div>
-            <span className="text-sm font-medium text-gray-700">Admin</span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-gray-700 hover:text-pink-500 transition"
+            >
+              <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
+                <User size={18} className="text-white" />
+              </div>
+              <span className="text-sm font-medium">{user.name || 'Admin'}</span>
+              <LogOut size={20} />
+            </button>
+          </div>
         </div>
       </div>
     </header>
