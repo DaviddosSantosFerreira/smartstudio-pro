@@ -1,390 +1,423 @@
-# 📋 SmartStudio Pro - Documentação Técnica Completa
+# 📋 SmartStudio Pro - Relatório Técnico v1.1
 
-**Data:** 28 de Janeiro de 2026  
-**Versão:** 1.0.0  
-**Autor:** Documentação gerada durante sessão de desenvolvimento
+**Data:** 01 de Fevereiro de 2026  
+**Versão do Sistema:** 1.1.0  
+**Autor:** David / Claude AI  
+**Última Sessão de Desenvolvimento:** 31/01/2026 - 01/02/2026
 
 ---
 
 ## 📑 ÍNDICE
 
-1. [Visão Geral do Sistema](#1-visão-geral-do-sistema)
-2. [Arquitetura Técnica](#2-arquitetura-técnica)
-3. [Stack Tecnológico](#3-stack-tecnológico)
-4. [Estrutura de Arquivos](#4-estrutura-de-arquivos)
-5. [Banco de Dados](#5-banco-de-dados)
-6. [API Endpoints](#6-api-endpoints)
-7. [Funcionalidades Implementadas](#7-funcionalidades-implementadas)
-8. [Funcionalidades Pendentes](#8-funcionalidades-pendentes)
-9. [Configurações de Deploy](#9-configurações-de-deploy)
-10. [Problemas Conhecidos](#10-problemas-conhecidos)
-11. [Melhorias Futuras](#11-melhorias-futuras)
-12. [Credenciais e URLs](#12-credenciais-e-urls)
+1. [Resumo Executivo](#1-resumo-executivo)
+2. [Visão Geral do Projeto](#2-visão-geral-do-projeto)
+3. [Arquitetura do Sistema](#3-arquitetura-do-sistema)
+4. [Stack Tecnológico](#4-stack-tecnológico)
+5. [Funcionalidades Implementadas](#5-funcionalidades-implementadas)
+6. [Implementações da Sessão Atual](#6-implementações-da-sessão-atual)
+7. [Estrutura do Banco de Dados](#7-estrutura-do-banco-de-dados)
+8. [API Endpoints](#8-api-endpoints)
+9. [Integrações Externas](#9-integrações-externas)
+10. [Configurações de Deploy](#10-configurações-de-deploy)
+11. [Funcionalidades Pendentes](#11-funcionalidades-pendentes)
+12. [Problemas Conhecidos e Soluções](#12-problemas-conhecidos-e-soluções)
+13. [Credenciais e URLs](#13-credenciais-e-urls)
+14. [Histórico de Alterações](#14-histórico-de-alterações)
 
 ---
 
-## 1. VISÃO GERAL DO SISTEMA
+## 1. RESUMO EXECUTIVO
 
-### 1.1 Descrição
-**SmartStudio Pro** é um sistema de gerenciamento completo para salões de beleza e estúdios, oferecendo:
-- Gestão de agendamentos
-- Cadastro de clientes
-- Controle financeiro
+O **SmartStudio Pro** é um sistema completo de gerenciamento para salões de beleza e estúdios de estética. O sistema permite gestão de agendamentos, clientes, profissionais, serviços, produtos, controle financeiro e relatórios gerenciais.
+
+### Principais Conquistas da Versão 1.1:
+- ✅ Sistema de upload de imagens com Cloudinary (armazenamento em nuvem)
+- ✅ Página pública de agendamento online com verificação de disponibilidade
+- ✅ Criação automática de clientes via booking público
+- ✅ Integração com WhatsApp para confirmação de agendamentos
+- ✅ Sistema funcionando 100% em produção no Render
+
+---
+
+## 2. VISÃO GERAL DO PROJETO
+
+### 2.1 Descrição
+Sistema SaaS para gerenciamento de salões de beleza oferecendo:
+- Gestão completa de agendamentos
+- Cadastro e histórico de clientes
+- Controle financeiro (receitas e despesas)
 - Gestão de profissionais e serviços
 - Controle de estoque de produtos
 - Relatórios gerenciais
-- Página pública de agendamento online
+- **Página pública de agendamento online** (NOVO)
+- **Upload de logo para personalização** (NOVO)
 
-### 1.2 Público-Alvo
+### 2.2 Público-Alvo
 - Salões de beleza
 - Barbearias
 - Estúdios de estética
 - Clínicas de beleza
 - Profissionais autônomos da área de beleza
 
+### 2.3 URLs de Produção
+| Ambiente | URL |
+|----------|-----|
+| Frontend (Painel Admin) | https://smartstudio-pro-frontend.onrender.com |
+| Backend (API) | https://smartstudio-pro.onrender.com |
+| Página de Booking | https://smartstudio-pro-frontend.onrender.com/booking/{slug} |
+
 ---
 
-## 2. ARQUITETURA TÉCNICA
+## 3. ARQUITETURA DO SISTEMA
 
-### 2.1 Arquitetura Geral
-\\\
+### 3.1 Diagrama de Arquitetura
+
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         FRONTEND                                 │
-│                    (React + Vite)                                │
+│                    (React + Vite + Tailwind)                     │
 │              smartstudio-pro-frontend.onrender.com               │
 └─────────────────────────────────────────────────────────────────┘
                               │
-                              │ HTTPS (API Calls)
+                              │ HTTPS (REST API)
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                         BACKEND                                  │
 │                    (Node.js + Express)                           │
 │                smartstudio-pro.onrender.com                      │
 └─────────────────────────────────────────────────────────────────┘
-                              │
-                              │ PostgreSQL Protocol
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                       DATABASE                                   │
-│                    (PostgreSQL 15)                               │
-│                   Render Managed DB                              │
-│           dpg-d5rc1q9r0fns73e2mn10-a.oregon-postgres.render.com │
-└─────────────────────────────────────────────────────────────────┘
-\\\
+                    │                       │
+                    │ PostgreSQL            │ HTTPS
+                    ▼                       ▼
+┌─────────────────────────┐    ┌─────────────────────────────────┐
+│       DATABASE          │    │         CLOUDINARY              │
+│    (PostgreSQL 15)      │    │    (Armazenamento de Imagens)   │
+│   Render Managed DB     │    │     res.cloudinary.com          │
+└─────────────────────────┘    └─────────────────────────────────┘
+```
 
-### 2.2 Comunicação
-- Frontend → Backend: REST API via HTTPS
-- Backend → Database: PostgreSQL via SSL
-- Autenticação: Não implementada (planejada para v2)
+### 3.2 Fluxo de Dados - Booking Público
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Cliente    │────►│  Seleciona   │────►│  Seleciona   │────►│  Seleciona   │
+│   Acessa     │     │   Serviço    │     │ Profissional │     │  Data/Hora   │
+└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+                                                                       │
+                                                                       ▼
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  WhatsApp    │◄────│  Confirmação │◄────│   Sistema    │◄────│  Preenche    │
+│  (Opcional)  │     │   Exibida    │     │ Cria Cliente │     │    Dados     │
+└──────────────┘     └──────────────┘     │ + Agendamento│     └──────────────┘
+                                          └──────────────┘
+```
 
 ---
 
-## 3. STACK TECNOLÓGICO
+## 4. STACK TECNOLÓGICO
 
-### 3.1 Frontend
+### 4.1 Frontend
 | Tecnologia | Versão | Uso |
 |------------|--------|-----|
 | React | 18.x | Framework UI |
 | Vite | 5.x | Build tool |
-| React Router DOM | 6.x | Roteamento |
+| React Router DOM | 6.x | Roteamento SPA |
 | Axios | 1.x | HTTP Client |
 | Tailwind CSS | 3.x | Estilização |
 | Lucide React | 0.x | Ícones |
 | date-fns | 2.x | Manipulação de datas |
 | Recharts | 2.x | Gráficos |
 
-### 3.2 Backend
+### 4.2 Backend
 | Tecnologia | Versão | Uso |
 |------------|--------|-----|
 | Node.js | 18.x | Runtime |
 | Express | 4.x | Framework HTTP |
 | pg (node-postgres) | 8.x | Driver PostgreSQL |
 | Multer | 1.x | Upload de arquivos |
+| Cloudinary | 1.x | **Armazenamento de imagens (NOVO)** |
 | CORS | 2.x | Cross-Origin |
 | dotenv | 16.x | Variáveis de ambiente |
-| date-fns | 2.x | Manipulação de datas |
 
-### 3.3 Banco de Dados
+### 4.3 Banco de Dados
 | Tecnologia | Versão | Uso |
 |------------|--------|-----|
 | PostgreSQL | 15.x | Banco de dados principal |
 
-### 3.4 Infraestrutura
+### 4.4 Infraestrutura
 | Serviço | Uso |
 |---------|-----|
 | Render (Web Service) | Hospedagem Backend |
 | Render (Static Site) | Hospedagem Frontend |
-| Render (PostgreSQL) | Banco de Dados |
+| Render (PostgreSQL) | Banco de Dados Gerenciado |
+| Cloudinary | **Armazenamento de Imagens (NOVO)** |
 | GitHub | Repositório de código |
 
 ---
 
-## 4. ESTRUTURA DE ARQUIVOS
+## 5. FUNCIONALIDADES IMPLEMENTADAS
 
-### 4.1 Estrutura do Projeto
-\\\
-smartstudio-pro/
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   │   ├── database.js       # Configuração PostgreSQL
-│   │   │   └── dbAdapter.js      # Adaptador Promise-based
-│   │   ├── controllers/
-│   │   │   ├── appointmentController.js
-│   │   │   ├── clientController.js
-│   │   │   ├── dashboardController.js
-│   │   │   ├── financialController.js
-│   │   │   ├── orientationController.js
-│   │   │   ├── productController.js
-│   │   │   ├── professionalController.js
-│   │   │   ├── reportController.js
-│   │   │   ├── serviceController.js
-│   │   │   ├── statsController.js
-│   │   │   └── studioController.js    # NOVO
-│   │   ├── middlewares/
-│   │   │   └── errorHandler.js
-│   │   ├── models/
-│   │   │   ├── Appointment.js
-│   │   │   ├── Client.js
-│   │   │   ├── Financial.js
-│   │   │   ├── Product.js
-│   │   │   ├── Professional.js
-│   │   │   ├── Service.js
-│   │   │   ├── Settings.js
-│   │   │   └── StudioSettings.js      # NOVO
-│   │   ├── routes/
-│   │   │   ├── appointmentRoutes.js
-│   │   │   ├── clientRoutes.js
-│   │   │   ├── dashboardRoutes.js
-│   │   │   ├── financialRoutes.js
-│   │   │   ├── orientationRoutes.js
-│   │   │   ├── productRoutes.js
-│   │   │   ├── professionalRoutes.js
-│   │   │   ├── reportRoutes.js
-│   │   │   ├── serviceRoutes.js
-│   │   │   ├── statsRoutes.js
-│   │   │   └── studioRoutes.js        # NOVO
-│   │   ├── app.js
-│   │   └── server.js
-│   ├── uploads/                        # Pasta para uploads (efêmera no Render)
-│   ├── .env
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   └── layout/
-│   │   │       ├── Layout.jsx
-│   │   │       ├── Sidebar.jsx
-│   │   │       └── Header.jsx
-│   │   ├── pages/
-│   │   │   ├── Appointments.jsx
-│   │   │   ├── Clients.jsx
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── Financial.jsx
-│   │   │   ├── Orientation.jsx
-│   │   │   ├── Products.jsx
-│   │   │   ├── Professionals.jsx
-│   │   │   ├── PublicBooking.jsx      # NOVO
-│   │   │   ├── Reports.jsx
-│   │   │   ├── Services.jsx
-│   │   │   ├── Settings.jsx
-│   │   │   └── StudioSettings.jsx     # NOVO
-│   │   ├── services/
-│   │   │   └── api.js
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── .env.production
-│   ├── vite.config.js
-│   └── package.json
-│
-└── README.md
-\\\
+### 5.1 Módulos do Painel Administrativo
+
+#### Dashboard ✅
+- Resumo financeiro do mês (receita, despesas, saldo)
+- Total de clientes cadastrados
+- Agendamentos do dia
+- Próximos agendamentos
+- Serviços mais vendidos
+- Produtos com estoque baixo
+- Gráfico de evolução financeira (6 meses)
+
+#### Clientes ✅
+- Listagem com busca
+- Cadastro completo (nome, telefone, email, CPF, data nascimento, endereço)
+- Edição e exclusão
+- Histórico de agendamentos
+
+#### Profissionais ✅
+- Listagem com filtro de ativos/inativos
+- Cadastro (nome, telefone, email, especialidade, comissão, cor)
+- Edição e exclusão
+- Status ativo/inativo
+
+#### Serviços ✅
+- Listagem com filtro de ativos
+- Cadastro (nome, descrição, preço, duração)
+- Edição e exclusão
+- Status ativo/inativo
+
+#### Produtos ✅
+- Listagem com filtro de ativos
+- Cadastro (nome, descrição, preço, estoque, estoque mínimo)
+- Edição e exclusão
+- Alerta de estoque baixo
+
+#### Agendamentos ✅
+- Listagem com filtros (data, profissional, status)
+- Cadastro (cliente, profissional, serviço, data, hora)
+- Edição e exclusão
+- Alteração de status (agendado, confirmado, concluído, cancelado)
+
+#### Financeiro ✅
+- Listagem de transações com filtros
+- Cadastro de receitas e despesas
+- Exclusão de transações
+- Resumo financeiro por período
+
+#### Orientação Financeira ✅
+- Configuração de percentuais (pró-labore, reinvestimento, reserva, impostos)
+- Cálculo automático de distribuição
+- Visualização de distribuição recomendada
+
+#### Relatórios ✅
+- Relatório de serviços por período
+- Relatório de profissionais por período
+- Relatório financeiro por período
+
+#### Configurações do Estúdio (Minha Página) ✅
+- Nome do estúdio
+- Slug (URL personalizada)
+- **Upload de logo com Cloudinary (NOVO)**
+- Telefone e WhatsApp
+- Instagram e endereço
+- Cores primária e secundária
+- Horários de funcionamento por dia da semana
+- Descrição do estúdio
+
+### 5.2 Página Pública de Booking ✅ (NOVO)
+
+#### Funcionalidades:
+- Interface responsiva e moderna
+- Exibição da logo e informações do estúdio
+- Cores personalizadas conforme configuração
+- Seleção de serviço (com preço e duração)
+- Seleção de profissional
+- Seleção de data
+- **Exibição apenas de horários disponíveis (NOVO)**
+- Formulário de dados do cliente (nome e telefone)
+- Confirmação de agendamento
+- **Criação automática de cliente (NOVO)**
+- **Integração com WhatsApp (NOVO)**
+
+#### Fluxo em 4 Etapas:
+1. **Serviço** - Cliente escolhe o serviço desejado
+2. **Profissional** - Cliente escolhe o profissional
+3. **Data/Hora** - Cliente escolhe data e horário disponível
+4. **Dados** - Cliente informa nome e telefone para confirmação
 
 ---
 
-## 5. BANCO DE DADOS
+## 6. IMPLEMENTAÇÕES DA SESSÃO ATUAL
 
-### 5.1 Diagrama ER (Entidade-Relacionamento)
-\\\
+### 6.1 Upload de Imagens com Cloudinary
+
+**Problema Resolvido:** O Render possui sistema de arquivos efêmero, fazendo com que uploads locais fossem perdidos a cada deploy.
+
+**Solução Implementada:**
+- Integração com Cloudinary para armazenamento permanente
+- Upload via buffer (memoryStorage do Multer)
+- Salvamento da URL no banco de dados
+
+**Arquivos Modificados:**
+```
+backend/
+├── src/
+│   ├── config/
+│   │   └── cloudinary.js          # NOVO - Configuração do Cloudinary
+│   ├── controllers/
+│   │   └── studioController.js    # MODIFICADO - Upload com Cloudinary
+│   └── routes/
+│       └── studioRoutes.js        # MODIFICADO - Multer memoryStorage
+├── .env                           # MODIFICADO - Variáveis Cloudinary
+
+frontend/
+└── src/
+    └── pages/
+        └── StudioSettings.jsx     # MODIFICADO - Correção response.data.logo_url
+```
+
+**Variáveis de Ambiente Adicionadas:**
+```env
+CLOUDINARY_CLOUD_NAME=djolkefyg
+CLOUDINARY_API_KEY=515661452425689
+CLOUDINARY_API_SECRET=***********
+```
+
+### 6.2 Verificação de Horários Disponíveis
+
+**Problema Resolvido:** O sistema exibia todos os horários fixos (9h-20h) sem verificar disponibilidade real.
+
+**Solução Implementada:**
+- Novo endpoint que verifica horários de funcionamento
+- Consulta agendamentos existentes
+- Considera duração do serviço
+- Retorna apenas horários realmente disponíveis
+
+**Arquivos Modificados:**
+```
+backend/
+└── src/
+    ├── controllers/
+    │   └── appointmentController.js  # MODIFICADO - getAvailableTimes()
+    └── routes/
+        └── appointmentRoutes.js      # MODIFICADO - Nova rota
+
+frontend/
+└── src/
+    └── pages/
+        └── PublicBooking.jsx         # MODIFICADO - fetchAvailableTimes()
+```
+
+**Novo Endpoint:**
+```
+GET /api/appointments/available-times?date=YYYY-MM-DD&service_id=X&professional_id=Y
+```
+
+**Lógica de Verificação:**
+1. Busca horários de funcionamento do dia (studio_settings)
+2. Busca duração do serviço selecionado
+3. Busca agendamentos existentes para a data
+4. Gera slots de 30 em 30 minutos
+5. Filtra slots que conflitam com agendamentos existentes
+6. Verifica se o serviço cabe antes do fechamento
+7. Retorna apenas horários disponíveis
+
+### 6.3 Criação Automática de Cliente no Booking
+
+**Problema Resolvido:** O sistema exigia um `client_id` existente, impossibilitando agendamentos de novos clientes pela página pública.
+
+**Solução Implementada:**
+- Verificação se cliente existe pelo telefone
+- Criação automática se não existir
+- Vinculação ao agendamento
+
+**Arquivo Modificado:**
+```
+backend/
+└── src/
+    └── controllers/
+        └── appointmentController.js  # MODIFICADO - create()
+```
+
+**Lógica Implementada:**
+```javascript
+// Se não tem client_id mas tem client_name e client_phone (booking público)
+if (!finalClientId && client_name && client_phone) {
+  // Buscar cliente existente pelo telefone
+  const existingClient = await pool.query(
+    'SELECT id FROM clients WHERE phone = $1',
+    [client_phone]
+  );
+  
+  if (existingClient.rows.length > 0) {
+    finalClientId = existingClient.rows[0].id;
+  } else {
+    // Criar novo cliente
+    const newClient = await pool.query(
+      'INSERT INTO clients (name, phone) VALUES ($1, $2) RETURNING id',
+      [client_name, client_phone]
+    );
+    finalClientId = newClient.rows[0].id;
+  }
+}
+```
+
+---
+
+## 7. ESTRUTURA DO BANCO DE DADOS
+
+### 7.1 Diagrama ER
+
+```
 ┌─────────────┐       ┌─────────────────┐       ┌─────────────┐
 │   clients   │       │  appointments   │       │  services   │
 ├─────────────┤       ├─────────────────┤       ├─────────────┤
 │ id (PK)     │◄──────│ client_id (FK)  │       │ id (PK)     │
 │ name        │       │ professional_id │──────►│ name        │
-│ phone       │       │ service_id (FK) │───────│ description │
-│ email       │       │ date            │       │ price       │
-│ cpf         │       │ time            │       │ duration    │
-│ birth_date  │       │ status          │       │ active      │
-│ address     │       │ notes           │       │ created_at  │
-│ notes       │       │ created_at      │       └─────────────┘
-│ created_at  │       └─────────────────┘
+│ phone       │       │ service_id (FK) │───────│ price       │
+│ email       │       │ date            │       │ duration    │
+│ cpf         │       │ time            │       │ active      │
+│ birth_date  │       │ status          │       └─────────────┘
+│ address     │       │ notes           │
+│ notes       │       └─────────────────┘
 └─────────────┘               │
                               │
 ┌─────────────────┐           │           ┌─────────────────────┐
 │  professionals  │◄──────────┘           │ financial_transactions│
 ├─────────────────┤                       ├─────────────────────┤
-│ id (PK)         │◄──────────────────────│ professional_id (FK)│
-│ name            │                       │ appointment_id (FK) │
-│ phone           │                       │ id (PK)             │
-│ email           │                       │ type                │
-│ specialty       │                       │ category            │
-│ commission_%    │                       │ description         │
-│ color           │                       │ amount              │
-│ active          │                       │ date                │
-│ created_at      │                       │ payment_method      │
-└─────────────────┘                       │ notes               │
-                                          │ created_at          │
-┌─────────────┐                           └─────────────────────┘
-│  products   │
-├─────────────┤       ┌─────────────────────┐
-│ id (PK)     │       │ orientation_settings│
-│ name        │       ├─────────────────────┤
-│ description │       │ id (PK)             │
-│ price       │       │ prolabore_%         │
-│ stock       │       │ reinvestment_%      │
-│ min_stock   │       │ reserve_%           │
-│ active      │       │ tax_%               │
-│ created_at  │       │ updated_at          │
-└─────────────┘       └─────────────────────┘
+│ id (PK)         │                       │ id (PK)             │
+│ name            │                       │ type                │
+│ phone           │                       │ category            │
+│ email           │                       │ amount              │
+│ specialty       │                       │ date                │
+│ commission_%    │                       │ payment_method      │
+│ color           │                       └─────────────────────┘
+│ active          │
+└─────────────────┘
 
-┌───────────────────┐
-│  studio_settings  │  # NOVA TABELA
-├───────────────────┤
-│ id (PK)           │
-│ name              │
-│ slug (UNIQUE)     │
-│ logo_url          │
-│ phone             │
-│ whatsapp          │
-│ instagram         │
-│ address           │
-│ description       │
-│ primary_color     │
-│ secondary_color   │
-│ monday_open/close │
-│ tuesday_open/close│
-│ ... (outros dias) │
-│ created_at        │
-│ updated_at        │
-└───────────────────┘
-\\\
+┌─────────────┐       ┌─────────────────────┐
+│  products   │       │   studio_settings   │
+├─────────────┤       ├─────────────────────┤
+│ id (PK)     │       │ id (PK)             │
+│ name        │       │ name                │
+│ price       │       │ slug (UNIQUE)       │
+│ stock       │       │ logo_url (NOVO)     │
+│ min_stock   │       │ phone, whatsapp     │
+│ active      │       │ instagram, address  │
+└─────────────┘       │ primary_color       │
+                      │ secondary_color     │
+                      │ {day}_open/close    │
+                      └─────────────────────┘
+```
 
-### 5.2 Scripts de Criação das Tabelas
+### 7.2 Tabela studio_settings (Atualizada)
 
-#### clients
-\\\sql
-CREATE TABLE IF NOT EXISTS clients (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  phone VARCHAR(20),
-  email VARCHAR(255),
-  cpf VARCHAR(14),
-  birth_date DATE,
-  address TEXT,
-  notes TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-\\\
-
-#### professionals
-\\\sql
-CREATE TABLE IF NOT EXISTS professionals (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  phone VARCHAR(20),
-  email VARCHAR(255),
-  specialty VARCHAR(255),
-  commission_percentage DECIMAL(5,2) DEFAULT 0,
-  color VARCHAR(20) DEFAULT '#3b82f6',
-  active BOOLEAN DEFAULT true,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-\\\
-
-#### services
-\\\sql
-CREATE TABLE IF NOT EXISTS services (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  price NUMERIC(10,2) NOT NULL,
-  duration_minutes INTEGER,
-  duration INTEGER DEFAULT 30,
-  active BOOLEAN DEFAULT true,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-\\\
-
-#### products
-\\\sql
-CREATE TABLE IF NOT EXISTS products (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  price NUMERIC(10,2) NOT NULL,
-  stock INTEGER DEFAULT 0,
-  min_stock INTEGER DEFAULT 0,
-  active BOOLEAN DEFAULT true,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-\\\
-
-#### appointments
-\\\sql
-CREATE TABLE IF NOT EXISTS appointments (
-  id SERIAL PRIMARY KEY,
-  client_id INTEGER NOT NULL REFERENCES clients(id),
-  professional_id INTEGER NOT NULL REFERENCES professionals(id),
-  service_id INTEGER NOT NULL REFERENCES services(id),
-  date DATE NOT NULL,
-  time VARCHAR(10) NOT NULL,
-  status VARCHAR(20) DEFAULT 'scheduled',
-  notes TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT appointments_status_check 
-    CHECK (status IN ('scheduled', 'confirmed', 'completed', 'cancelled'))
-);
-\\\
-
-#### financial_transactions
-\\\sql
-CREATE TABLE IF NOT EXISTS financial_transactions (
-  id SERIAL PRIMARY KEY,
-  type VARCHAR(10) NOT NULL,
-  category VARCHAR(255) NOT NULL,
-  description VARCHAR(255) NOT NULL,
-  amount NUMERIC(10,2) NOT NULL,
-  date DATE NOT NULL,
-  payment_method VARCHAR(50),
-  appointment_id INTEGER REFERENCES appointments(id),
-  professional_id INTEGER REFERENCES professionals(id),
-  notes TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT financial_transactions_type_check 
-    CHECK (type IN ('income', 'expense'))
-);
-\\\
-
-#### orientation_settings
-\\\sql
-CREATE TABLE IF NOT EXISTS orientation_settings (
-  id SERIAL PRIMARY KEY,
-  prolabore_percentage DECIMAL(5,2) DEFAULT 25,
-  reinvestment_percentage DECIMAL(5,2) DEFAULT 15,
-  reserve_percentage DECIMAL(5,2) DEFAULT 10,
-  tax_percentage DECIMAL(5,2) DEFAULT 20,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-\\\
-
-#### studio_settings (NOVA)
-\\\sql
+```sql
 CREATE TABLE IF NOT EXISTS studio_settings (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   slug VARCHAR(255) UNIQUE,
-  logo_url TEXT,
+  logo_url TEXT,                              -- URL do Cloudinary
   phone VARCHAR(20),
   whatsapp VARCHAR(20),
   instagram VARCHAR(255),
@@ -409,424 +442,260 @@ CREATE TABLE IF NOT EXISTS studio_settings (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-\\\
+```
 
 ---
 
-## 6. API ENDPOINTS
+## 8. API ENDPOINTS
 
-### 6.1 Clientes (\/api/clients\)
+### 8.1 Endpoints Existentes
+
+| Módulo | Método | Endpoint | Descrição |
+|--------|--------|----------|-----------|
+| Clientes | GET | /api/clients | Lista todos |
+| Clientes | POST | /api/clients | Cria novo |
+| Clientes | PUT | /api/clients/:id | Atualiza |
+| Clientes | DELETE | /api/clients/:id | Remove |
+| Profissionais | GET | /api/professionals | Lista todos |
+| Profissionais | GET | /api/professionals/active | Lista ativos |
+| Serviços | GET | /api/services | Lista todos |
+| Serviços | GET | /api/services/active | Lista ativos |
+| Produtos | GET | /api/products | Lista todos |
+| Agendamentos | GET | /api/appointments | Lista todos |
+| Agendamentos | POST | /api/appointments | Cria novo |
+| Financeiro | GET | /api/financial | Lista transações |
+| Dashboard | GET | /api/dashboard/overview | Dados gerais |
+| Relatórios | GET | /api/reports/services | Relatório serviços |
+
+### 8.2 Novos Endpoints (v1.1)
+
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| GET | \/api/clients\ | Lista todos os clientes |
-| GET | \/api/clients/:id\ | Obtém um cliente específico |
-| POST | \/api/clients\ | Cria um novo cliente |
-| PUT | \/api/clients/:id\ | Atualiza um cliente |
-| DELETE | \/api/clients/:id\ | Remove um cliente |
+| **GET** | `/api/appointments/available-times` | **Horários disponíveis (NOVO)** |
+| **POST** | `/api/studio/upload-logo` | **Upload de logo (NOVO)** |
+| GET | /api/studio/public/:slug | Dados públicos do estúdio |
 
-### 6.2 Profissionais (\/api/professionals\)
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/professionals\ | Lista todos os profissionais |
-| GET | \/api/professionals/active\ | Lista profissionais ativos |
-| GET | \/api/professionals/:id\ | Obtém um profissional específico |
-| POST | \/api/professionals\ | Cria um novo profissional |
-| PUT | \/api/professionals/:id\ | Atualiza um profissional |
-| DELETE | \/api/professionals/:id\ | Remove um profissional |
+### 8.3 Detalhes dos Novos Endpoints
 
-### 6.3 Serviços (\/api/services\)
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/services\ | Lista todos os serviços |
-| GET | \/api/services/active\ | Lista serviços ativos |
-| GET | \/api/services/:id\ | Obtém um serviço específico |
-| POST | \/api/services\ | Cria um novo serviço |
-| PUT | \/api/services/:id\ | Atualiza um serviço |
-| DELETE | \/api/services/:id\ | Remove um serviço |
+#### GET /api/appointments/available-times
 
-### 6.4 Produtos (\/api/products\)
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/products\ | Lista todos os produtos |
-| GET | \/api/products/:id\ | Obtém um produto específico |
-| POST | \/api/products\ | Cria um novo produto |
-| PUT | \/api/products/:id\ | Atualiza um produto |
-| DELETE | \/api/products/:id\ | Remove um produto |
+**Query Parameters:**
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|-------------|-----------|
+| date | string | Sim | Data no formato YYYY-MM-DD |
+| service_id | number | Não | ID do serviço (para considerar duração) |
+| professional_id | number | Não | ID do profissional (para filtrar) |
 
-### 6.5 Agendamentos (\/api/appointments\)
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/appointments\ | Lista todos os agendamentos |
-| GET | \/api/appointments/:id\ | Obtém um agendamento específico |
-| POST | \/api/appointments\ | Cria um novo agendamento |
-| PUT | \/api/appointments/:id\ | Atualiza um agendamento |
-| PATCH | \/api/appointments/:id/status\ | Atualiza status do agendamento |
-| DELETE | \/api/appointments/:id\ | Remove um agendamento |
+**Response:**
+```json
+{
+  "availableTimes": ["09:00", "09:30", "10:00", "10:30", "14:00", "14:30"],
+  "openTime": "09:00",
+  "closeTime": "18:00",
+  "serviceDuration": 30
+}
+```
 
-### 6.6 Financeiro (\/api/financial\)
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/financial\ | Lista transações (com filtros) |
-| GET | \/api/financial/summary\ | Resumo financeiro |
-| POST | \/api/financial\ | Cria nova transação |
-| DELETE | \/api/financial/:id\ | Remove uma transação |
+#### POST /api/studio/upload-logo
 
-### 6.7 Dashboard (\/api/dashboard\)
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/dashboard/overview\ | Dados gerais do dashboard |
+**Request:**
+- Content-Type: multipart/form-data
+- Campo: `logo` (arquivo de imagem)
 
-### 6.8 Relatórios (\/api/reports\)
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/reports/services\ | Relatório de serviços |
-| GET | \/api/reports/professionals\ | Relatório de profissionais |
-| GET | \/api/reports/financial\ | Relatório financeiro |
-
-### 6.9 Orientação Financeira (\/api/orientation\)
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/orientation/settings\ | Obtém configurações |
-| PUT | \/api/orientation/settings\ | Atualiza configurações |
-| POST | \/api/orientation/calculate\ | Calcula distribuição |
-
-### 6.10 Estatísticas (\/api/stats\)
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/stats\ | Estatísticas gerais |
-
-### 6.11 Configurações do Estúdio (\/api/studio\) - NOVO
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | \/api/studio/settings\ | Obtém configurações do estúdio |
-| PUT | \/api/studio/settings\ | Atualiza configurações |
-| POST | \/api/studio/upload-logo\ | Upload de logo |
-| GET | \/api/studio/public/:slug\ | Dados públicos (para booking) |
+**Response:**
+```json
+{
+  "message": "Logo enviado com sucesso",
+  "logo_url": "https://res.cloudinary.com/djolkefyg/image/upload/v.../logo.png",
+  "settings": { ... }
+}
+```
 
 ---
 
-## 7. FUNCIONALIDADES IMPLEMENTADAS
+## 9. INTEGRAÇÕES EXTERNAS
 
-### 7.1 ✅ Módulos Completos
+### 9.1 Cloudinary (NOVO)
 
-#### Dashboard
-- [x] Resumo financeiro do mês (receita, despesas, saldo)
-- [x] Total de clientes
-- [x] Agendamentos do dia
-- [x] Próximos agendamentos
-- [x] Serviços mais vendidos
-- [x] Produtos com estoque baixo
-- [x] Gráfico de evolução financeira (6 meses)
+**Propósito:** Armazenamento permanente de imagens
 
-#### Clientes
-- [x] Listagem com busca
-- [x] Cadastro completo (nome, telefone, email, CPF, data nascimento, endereço)
-- [x] Edição
-- [x] Exclusão
+**Configuração:**
+- Cloud Name: `djolkefyg`
+- Pasta: `smartstudio/logos`
+- Formato de URL: `https://res.cloudinary.com/djolkefyg/image/upload/...`
 
-#### Profissionais
-- [x] Listagem com filtro de ativos
-- [x] Cadastro (nome, telefone, email, especialidade, comissão, cor)
-- [x] Edição
-- [x] Exclusão
-- [x] Status ativo/inativo
+**Arquivo de Configuração:** `backend/src/config/cloudinary.js`
 
-#### Serviços
-- [x] Listagem com filtro de ativos
-- [x] Cadastro (nome, descrição, preço, duração)
-- [x] Edição
-- [x] Exclusão
-- [x] Status ativo/inativo
+```javascript
+const cloudinary = require('cloudinary').v2;
 
-#### Produtos
-- [x] Listagem com filtro de ativos
-- [x] Cadastro (nome, descrição, preço, estoque, estoque mínimo)
-- [x] Edição
-- [x] Exclusão
-- [x] Alerta de estoque baixo
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-#### Agendamentos
-- [x] Listagem com filtros (data, profissional, status)
-- [x] Cadastro (cliente, profissional, serviço, data, hora)
-- [x] Edição
-- [x] Exclusão
-- [x] Alteração de status (agendado, confirmado, concluído, cancelado)
+module.exports = cloudinary;
+```
 
-#### Financeiro
-- [x] Listagem de transações com filtros
-- [x] Cadastro de receitas e despesas
-- [x] Exclusão de transações
-- [x] Resumo financeiro
+### 9.2 WhatsApp (via URL)
 
-#### Orientação Financeira
-- [x] Configuração de percentuais (pró-labore, reinvestimento, reserva, impostos)
-- [x] Cálculo de distribuição financeira
-- [x] Visualização de distribuição
+**Propósito:** Confirmação de agendamentos
 
-#### Relatórios
-- [x] Relatório de serviços (por período)
-- [x] Relatório de profissionais (por período)
-- [x] Relatório financeiro (por período)
+**Implementação:** Redirecionamento para `https://api.whatsapp.com/send`
 
-#### Configurações do Estúdio (NOVO - Parcial)
-- [x] Interface de configuração
-- [x] Campos: nome, slug, telefone, WhatsApp, Instagram, endereço, descrição
-- [x] Seleção de cores (primária e secundária)
-- [ ] Upload de logo (pendente - Cloudinary)
-
-#### Página Pública de Booking (NOVO - Parcial)
-- [x] Interface responsiva
-- [x] Seleção de serviço
-- [x] Seleção de profissional
-- [x] Seleção de data e horário
-- [x] Formulário de dados do cliente
-- [x] Confirmação de agendamento
-- [x] Integração com WhatsApp
-- [ ] Verificação de horários disponíveis (pendente)
+**Parâmetros:**
+- `phone`: Número do WhatsApp do estúdio
+- `text`: Mensagem pré-formatada com dados do agendamento
 
 ---
 
-## 8. FUNCIONALIDADES PENDENTES
+## 10. CONFIGURAÇÕES DE DEPLOY
 
-### 8.1 🔴 Alta Prioridade
-
-#### Upload de Imagens com Cloudinary
-- [ ] Criar conta no Cloudinary
-- [ ] Configurar credenciais
-- [ ] Implementar upload de logo no backend
-- [ ] Salvar URL no banco de dados
-- [ ] Exibir logo na página pública
-
-#### Verificação de Horários Disponíveis
-- [ ] Consultar agendamentos existentes
-- [ ] Bloquear horários já ocupados
-- [ ] Respeitar horário de funcionamento
-- [ ] Considerar duração do serviço
-
-### 8.2 🟡 Média Prioridade
-
-#### Autenticação e Autorização
-- [ ] Login/Logout
-- [ ] Registro de usuários
-- [ ] Níveis de acesso (admin, profissional)
-- [ ] Proteção de rotas
-
-#### Notificações
-- [ ] Notificações por email
-- [ ] Notificações por WhatsApp
-- [ ] Lembretes de agendamento
-
-#### Agenda Visual
-- [ ] Visualização em calendário
-- [ ] Drag and drop de agendamentos
-- [ ] Visualização por profissional
-
-### 8.3 🟢 Baixa Prioridade
-
-#### Backup do Banco de Dados
-- [ ] Configurar backup automático
-- [ ] Exportação de dados
-- [ ] Importação de dados
-
-#### Multi-tenancy
-- [ ] Suporte a múltiplos estúdios
-- [ ] Subdomínios personalizados
-- [ ] Planos de assinatura
-
-#### Integrações
-- [ ] Google Calendar
-- [ ] WhatsApp Business API
-- [ ] Gateway de pagamento
-
----
-
-## 9. CONFIGURAÇÕES DE DEPLOY
-
-### 9.1 Render - Backend (Web Service)
+### 10.1 Render - Backend
 
 **Nome:** smartstudio-pro  
 **URL:** https://smartstudio-pro.onrender.com  
-**Branch:** main  
-**Build Command:** \cd backend && npm install\  
-**Start Command:** \cd backend && npm start\  
-**Plano:** Free
+**Tipo:** Web Service  
+**Build Command:** `cd backend && npm install`  
+**Start Command:** `cd backend && npm start`  
 
 **Variáveis de Ambiente:**
-\\\
+```env
 NODE_ENV=production
-DATABASE_URL=postgresql://smartstudio_db_user:xxx@dpg-xxx.oregon-postgres.render.com/smartstudio_db
+DATABASE_URL=postgresql://...
 PORT=10000
-\\\
+CLOUDINARY_CLOUD_NAME=djolkefyg
+CLOUDINARY_API_KEY=515661452425689
+CLOUDINARY_API_SECRET=***********
+```
 
-### 9.2 Render - Frontend (Static Site)
+### 10.2 Render - Frontend
 
 **Nome:** smartstudio-pro-frontend  
 **URL:** https://smartstudio-pro-frontend.onrender.com  
-**Branch:** main  
-**Build Command:** \cd frontend && npm install && npm run build\  
-**Publish Directory:** \rontend/dist\  
-**Plano:** Free
+**Tipo:** Static Site  
+**Build Command:** `cd frontend && npm install && npm run build`  
+**Publish Directory:** `frontend/dist`  
 
-### 9.3 Render - Database (PostgreSQL)
+### 10.3 Render - Database
 
 **Nome:** smartstudio-db  
-**ID:** dpg-d5rc1q9r0fns73e2mn10-a  
+**Tipo:** PostgreSQL 15  
 **Região:** Oregon (US West)  
-**Plano:** Free (90 dias, depois precisa atualizar)
-
-**Internal URL:**
-\\\
-postgresql://smartstudio_db_user:xxx@dpg-d5rc1q9r0fns73e2mn10-a/smartstudio_db
-\\\
-
-**External URL:**
-\\\
-postgresql://smartstudio_db_user:xxx@dpg-d5rc1q9r0fns73e2mn10-a.oregon-postgres.render.com/smartstudio_db
-\\\
-
-### 9.4 Configuração Local
-
-**Backend (.env):**
-\\\env
-PORT=3001
-NODE_ENV=development
-DATABASE_URL=postgresql://smartstudio_db_user:xxx@dpg-xxx/smartstudio_db
-SENHA_LOCAL=postgres8297
-\\\
-
-**Frontend (.env.production):**
-\\\env
-VITE_API_URL=https://smartstudio-pro.onrender.com
-\\\
-
-**Frontend (vite.config.js):**
-\\\javascript
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true
-      }
-    }
-  }
-});
-\\\
 
 ---
 
-## 10. PROBLEMAS CONHECIDOS
+## 11. FUNCIONALIDADES PENDENTES
 
-### 10.1 🔴 Críticos
+### 11.1 Alta Prioridade (Próxima Versão)
+- [ ] Sistema de autenticação (JWT)
+- [ ] Proteção de rotas administrativas
+- [ ] Múltiplos níveis de usuário (admin, profissional)
 
-| Problema | Impacto | Solução Proposta |
-|----------|---------|------------------|
-| Upload de imagens não funciona no Render | Logo não pode ser enviado | Implementar Cloudinary |
-| Sistema de arquivos efêmero no Render | Arquivos são perdidos a cada deploy | Usar armazenamento em nuvem |
+### 11.2 Média Prioridade
+- [ ] Notificações por email
+- [ ] Lembretes automáticos de agendamento
+- [ ] Agenda visual (calendário com drag and drop)
+- [ ] Relatórios em PDF
 
-### 10.2 🟡 Moderados
-
-| Problema | Impacto | Solução Proposta |
-|----------|---------|------------------|
-| Sem verificação de horários no booking | Pode haver conflito de agendamentos | Implementar validação |
-| Sem autenticação | Sistema aberto | Implementar auth |
-| DECIMAL retorna como string | Precisa de parseFloat | Converter no backend |
-
-### 10.3 🟢 Menores
-
-| Problema | Impacto | Solução Proposta |
-|----------|---------|------------------|
-| Console warnings do React | Apenas desenvolvimento | Corrigir avisos |
-| Fuso horário | Datas podem variar | Usar UTC ou configurar timezone |
+### 11.3 Baixa Prioridade
+- [ ] Multi-tenancy (múltiplos estúdios)
+- [ ] App mobile (React Native)
+- [ ] Integração com gateway de pagamento
+- [ ] Google Calendar sync
 
 ---
 
-## 11. MELHORIAS FUTURAS
+## 12. PROBLEMAS CONHECIDOS E SOLUÇÕES
 
-### 11.1 Versão 1.1 (Próxima)
-1. ✅ Cloudinary para upload de imagens
-2. Verificação de disponibilidade de horários
-3. Confirmação de agendamento por WhatsApp
+### 12.1 Resolvidos nesta Versão
 
-### 11.2 Versão 1.2
-1. Sistema de autenticação (JWT)
-2. Múltiplos níveis de usuário
-3. Agenda visual (calendário)
+| Problema | Causa | Solução |
+|----------|-------|---------|
+| Upload de logo não persistia | Sistema de arquivos efêmero do Render | Cloudinary |
+| Logo não aparecia na página pública | logo_url não salvo no banco | Corrigido pool.query |
+| Conflito de agendamentos | Sem verificação de disponibilidade | Endpoint available-times |
+| Clientes não criados no booking | Sistema exigia client_id existente | Criação automática |
+| Frontend não recebia logo_url | response.data.url vs logo_url | Corrigido no frontend |
 
-### 11.3 Versão 2.0
-1. Multi-tenancy (múltiplos estúdios)
-2. App mobile (React Native)
-3. Dashboard avançado com BI
-4. Integração com meios de pagamento
+### 12.2 Pendentes
+
+| Problema | Impacto | Solução Proposta |
+|----------|---------|------------------|
+| Sem autenticação | Sistema aberto | Implementar JWT |
+| DECIMAL retorna string | Precisa parseFloat | Converter no backend |
 
 ---
 
-## 12. CREDENCIAIS E URLs
+## 13. CREDENCIAIS E URLs
 
-### 12.1 URLs de Produção
+### 13.1 URLs de Produção
 | Serviço | URL |
 |---------|-----|
 | Frontend | https://smartstudio-pro-frontend.onrender.com |
 | Backend API | https://smartstudio-pro.onrender.com |
-| Página de Booking | https://smartstudio-pro-frontend.onrender.com/booking/{slug} |
+| Página de Booking | https://smartstudio-pro-frontend.onrender.com/booking/studio-vanessa-barbosa |
 
-### 12.2 URLs de Desenvolvimento
-| Serviço | URL |
-|---------|-----|
-| Frontend | http://localhost:3000 |
-| Backend API | http://localhost:3001 |
+### 13.2 Cloudinary
+| Campo | Valor |
+|-------|-------|
+| Cloud Name | djolkefyg |
+| Console | https://console.cloudinary.com |
 
-### 12.3 Banco de Dados (Render)
-\\\
-Host: dpg-d5rc1q9r0fns73e2mn10-a.oregon-postgres.render.com
-Database: smartstudio_db
-User: smartstudio_db_user
-Password: cQn0BwG90vrYMuNsBxmDsSIY5OKhKinj
-\\\
-
-### 12.4 PostgreSQL Local
-\\\
-Host: localhost
-Port: 5432
-Database: smartstudio_local
-User: postgres
-Password: postgres8297
-\\\
+### 13.3 Render Dashboard
+| Serviço | Link |
+|---------|------|
+| Dashboard | https://dashboard.render.com |
 
 ---
 
-## 📝 NOTAS FINAIS
+## 14. HISTÓRICO DE ALTERAÇÕES
 
-### Comandos Úteis
+### Versão 1.1.0 (01/02/2026)
+- ✅ Implementado upload de logo com Cloudinary
+- ✅ Implementado verificação de horários disponíveis
+- ✅ Implementado criação automática de cliente no booking
+- ✅ Corrigido salvamento do logo_url no banco
+- ✅ Corrigido leitura do logo_url no frontend
+- ✅ Removidos logs de debug
 
-**Iniciar Backend (desenvolvimento):**
-\\\ash
-cd backend
-npm run dev
-\\\
+### Versão 1.0.0 (28/01/2026)
+- ✅ Sistema base completo
+- ✅ CRUD de clientes, profissionais, serviços, produtos
+- ✅ Sistema de agendamentos
+- ✅ Controle financeiro
+- ✅ Dashboard e relatórios
+- ✅ Página pública de booking (básica)
+- ✅ Configurações do estúdio
 
-**Iniciar Frontend (desenvolvimento):**
-\\\ash
-cd frontend
-npm run dev
-\\\
+---
 
-**Deploy (via Git):**
-\\\ash
+## 📝 COMANDOS ÚTEIS
+
+### Desenvolvimento Local
+```bash
+# Backend
+cd backend && npm run dev
+
+# Frontend
+cd frontend && npm run dev
+```
+
+### Deploy
+```bash
 git add .
 git commit -m "descrição"
 git push
-\\\
+```
 
-**Conectar ao banco de produção:**
-\\\ash
-psql "postgresql://smartstudio_db_user:cQn0BwG90vrYMuNsBxmDsSIY5OKhKinj@dpg-d5rc1q9r0fns73e2mn10-a.oregon-postgres.render.com/smartstudio_db"
-\\\
+### Banco de Dados (Produção)
+```bash
+psql "postgresql://smartstudio_db_user:***@dpg-***.oregon-postgres.render.com/smartstudio_db"
+```
 
 ---
 
-**Documento gerado em:** 28/01/2026  
-**Última atualização:** 28/01/2026  
-**Versão do documento:** 1.0.0
+**Documento gerado em:** 01/02/2026  
+**Próxima revisão sugerida:** Após implementação de autenticação  
+**Responsável:** David / Claude AI

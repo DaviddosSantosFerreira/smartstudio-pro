@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const authRoutes = require('./routes/authRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
@@ -11,6 +12,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const statsRoutes = require('./routes/statsRoutes');
 const studioRoutes = require('./routes/studioRoutes');
+const User = require('./models/User');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -34,6 +36,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Rotas de autenticação
+app.use('/api/auth', authRoutes);
+
 // Rotas
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/clients', clientRoutes);
@@ -48,6 +53,9 @@ app.use('/api', statsRoutes);
 app.use('/api/studio', studioRoutes);
 
 app.use(errorHandler);
+
+// Criar tabela de usuários se não existir
+User.createTable().catch(err => console.error('Erro ao criar tabela users:', err));
 
 module.exports = app;
 
