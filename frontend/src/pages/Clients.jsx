@@ -17,15 +17,19 @@ export default function Clients() {
   });
 
   useEffect(() => {
+    console.log('🔵 useEffect executado - carregando clientes...');
     loadClients();
   }, []);
 
   const loadClients = async () => {
     try {
+      console.log('🔵 loadClients - Chamando API...');
       const data = await clientService.getAll();
+      console.log('🔵 loadClients - Dados recebidos:', data);
       setClients(Array.isArray(data) ? data : []);
+      console.log('🔵 loadClients - Clientes definidos:', data);
     } catch (error) {
-      console.error('Erro:', error);
+      console.error('❌ loadClients - Erro:', error);
       setClients([]);
     }
   };
