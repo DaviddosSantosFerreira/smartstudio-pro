@@ -3,7 +3,17 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'smartstudio-secret-key-2026';
 
 // Middleware para verificar token JWT
+// TEMPORARIAMENTE DESABILITADO - Permitindo acesso sem autenticação
 const authMiddleware = (req, res, next) => {
+  // Criar usuário padrão para não quebrar código que depende de req.user
+  req.user = {
+    id: 1,
+    email: 'admin@smartstudio.com',
+    role: 'admin'
+  };
+  return next();
+  
+  /* CÓDIGO ORIGINAL COMENTADO - Descomentar quando autenticação estiver pronta
   try {
     // Pegar token do header
     const authHeader = req.headers.authorization;
@@ -44,6 +54,7 @@ const authMiddleware = (req, res, next) => {
   } catch (error) {
     return res.status(401).json({ error: 'Erro na autenticação' });
   }
+  */
 };
 
 // Middleware para verificar se é admin
