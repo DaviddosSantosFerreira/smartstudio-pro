@@ -8,6 +8,7 @@ import Table from '../components/common/Table';
 import { formatPhone } from '../utils/formatters';
 
 export default function Clients() {
+  console.log('👥 Clients - Componente renderizado!'); 
   const [clients, setClients] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
